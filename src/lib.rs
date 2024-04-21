@@ -12,7 +12,6 @@
 mod sector_reader;
 use anyhow::{bail, Context, Result};
 
-
 use ntfs::indexes::NtfsFileNameIndex;
 use ntfs::structured_values::{
     NtfsFileName, NtfsFileNamespace,
@@ -83,7 +82,7 @@ pub fn rawcopy(file_path: &str, save_path: &str) -> Result<()> {
     };
 
     for ele in components {
-        // println!("{}", ele);
+        // log::debug!("{}", ele);
         cd(ele, &mut info)?;
     }
 
@@ -148,7 +147,7 @@ where
         let maybe_entry = NtfsFileNameIndex::find(&mut finder, info.ntfs, &mut info.fs, arg);
 
         if maybe_entry.is_none() {
-            println!("Cannot find subdirectory \"{arg}\".");
+            log::error!("Cannot find subdirectory \"{arg}\".");
             return Ok(());
         }
 
@@ -158,7 +157,7 @@ where
             .expect("key must exist for a found Index Entry")?;
 
         if !file_name.is_directory() {
-            println!("\"{arg}\" is not a directory.");
+            log::error!("\"{arg}\" is not a directory.");
             return Ok(());
         }
 
@@ -207,7 +206,7 @@ where
     let data_item = match file.data(&mut info.fs, data_stream_name) {
         Some(data_item) => data_item,
         None => {
-            println!("The file does not have a \"{data_stream_name}\" $DATA attribute.");
+            log::error!("The file does not have a \"{data_stream_name}\" $DATA attribute.");
             return Ok(());
         }
     };
@@ -215,7 +214,7 @@ where
     let data_attribute = data_item.to_attribute()?;
     let mut data_value = data_attribute.value(&mut info.fs)?;
 
-    println!(
+    log::debug!(
         "Saving {} bytes of data in \"{}\"...",
         data_value.len(),
         output_file_name
@@ -230,7 +229,7 @@ where
 
         output_file.write_all(&buf[..bytes_read])?;
     }
-    println!("Done! save to {}", &output_file_path.to_str().unwrap());
+    log::debug!("Done! save to {}", &output_file_path.to_str().unwrap());
     Ok(())
 }
 #[allow(clippy::from_str_radix_10)]
