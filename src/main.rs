@@ -16,6 +16,6 @@ fn main() -> Result<()> {
 
     let file_path = args[1].as_str();
     let save_path = args[2].as_str();
-    rawcopy_rs::rawcopy(file_path, save_path)?;
+    rawcopy_rs_next::rawcopy(file_path, save_path)?;
     Ok(())
 }
